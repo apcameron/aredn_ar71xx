@@ -1062,8 +1062,8 @@ sub hardware_info
       'rfband'          => '5800ubntus',
       'chanpower'       => { 140 => '17', 184 => '26' },
     },
-    'TP-Link CPE510 v2.0' => {
-      'name'            => 'TP-Link CPE510 v2.0',
+    'TP-Link CPE510 v2' => {
+      'name'            => 'TP-Link CPE510 v2',
       'comment'         => '',
       'supported'       => '1',
       'maxpower'        => '26',

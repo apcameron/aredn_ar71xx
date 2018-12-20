@@ -1,23 +1,19 @@
 #!/bin/sh
-#CMLARA:  Temporary shell script for ar71xx platform models
 # Return the model of the device
 
 if [ ! -f /tmp/sysinfo/boardid ]; then
-  . /lib/functions.sh
-  . /lib/ar71xx.sh
-  ar71xx_board_detect
+CFG=/etc/board.json
+name=""
 
-  case $AR71XX_BOARD_NAME in
-    *-m-xw)
-      BOARDID=$(dd if=/dev/mtd7 bs=1 skip=12 count=2 2>/dev/null | hexdump -v -n 4 -e '1/1 "%02x"')
-      BOARDID="0x${BOARDID}"
-      ;;
-    *)
-      BOARDID=$AR71XX_MODEL
-      ;;
-  esac
+. /usr/share/libubox/jshn.sh
 
-echo "$BOARDID" > /tmp/sysinfo/boardid
+[ -f $CFG ] || exit 1
+json_init
+json_load "$(cat ${CFG})"
+json_select model
+json_get_vars name
+
+echo "$name" > /tmp/sysinfo/boardid
 
 fi
 

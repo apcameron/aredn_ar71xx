@@ -1,0 +1,387 @@
+From c3c36aaaee97f8dfe833310768281798c8bd8492 Mon Sep 17 00:00:00 2001
+From: Paul Wassi <p.wassi@gmx.at>
+Date: Tue, 1 Jan 2019 13:13:24 +0100
+Subject: [PATCH 1/2] ath79: add support for TP-Link CPE510-v1
+
+TP-Link CPE510-v1 is an outdoor wireless CPE for 5 GHz with
+two Ethernet ports based on Atheros AR9334
+
+Specifications:
+ - 560/450/225 MHz (CPU/DDR/AHB)
+ - 2x 10/100 Mbps Ethernet, 1x PoE-in, 1x PoE-out
+ - 64 MB of DDR2 RAM
+ - 8 MB of SPI-NOR Flash
+ - 2T2R 5 GHz
+ - 13 dBi built-in antenna
+ - Power, LAN0, LAN1 green LEDs
+ - 4x green RSSI LEDs
+
+Flashing instructions:
+ - as for ar71xx
+ - can be done via sysupgrade
+ - can be TFTP'd from bootloader
+
+Signed-off-by: Paul Wassi <p.wassi@gmx.at>
+---
+ .../ath79/base-files/etc/board.d/01_leds      |   9 +
+ .../ath79/base-files/etc/board.d/02_network   |   4 +
+ .../base-files/etc/board.d/03_gpio_switches   |   3 +
+ .../ath79/dts/ar9344_tplink_cpe510-v1.dts     | 183 ++++++++++++++++++
+ target/linux/ath79/image/generic-tp-link.mk   |  16 ++
+ 5 files changed, 215 insertions(+)
+ create mode 100644 target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts
+
+diff --git a/target/linux/ath79/base-files/etc/board.d/01_leds b/target/linux/ath79/base-files/etc/board.d/01_leds
+index c5ea726ce49..e4c663ebd85 100755
+--- a/target/linux/ath79/base-files/etc/board.d/01_leds
++++ b/target/linux/ath79/base-files/etc/board.d/01_leds
+@@ -90,6 +90,15 @@ tplink,archer-c6-v2)
+ 	ucidef_set_led_switch "lan" "LAN" "tp-link:green:lan" "switch0" "0x3C"
+ 	ucidef_set_led_switch "wan" "WAN" "tp-link:green:wan" "switch0" "0x02"
+ 	;;
++tplink,cpe510-v1)
++	ucidef_set_rssimon "wlan0" "200000" "1"
++	ucidef_set_led_rssi "rssilow" "RSSILOW" "tp-link:green:link1" "wlan0" "1" "100" "0" "13"
++	ucidef_set_led_rssi "rssimediumlow" "RSSIMEDIUMLOW" "tp-link:green:link2" "wlan0" "26" "100" "-25" "13"
++	ucidef_set_led_rssi "rssimediumhigh" "RSSIMEDIUMHIGH" "tp-link:green:link3" "wlan0" "51" "100" "-50" "13"
++	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "tp-link:green:link4" "wlan0" "76" "100" "-75" "13"
++	ucidef_set_led_switch "lan0" "LAN0" "tp-link:green:lan0" "switch0" "0x02"
++	ucidef_set_led_switch "lan1" "LAN1" "tp-link:green:lan1" "switch0" "0x10"
++	;;
+ tplink,re450-v2)
+ 	ucidef_set_led_netdev "lan_data" "LAN Data" "tp-link:green:lan_data" "eth0" "tx rx"
+ 	ucidef_set_led_netdev "lan_link" "LAN Link" "tp-link:green:lan_link" "eth0" "link"
+diff --git a/target/linux/ath79/base-files/etc/board.d/02_network b/target/linux/ath79/base-files/etc/board.d/02_network
+index e24c58e208f..a467e9eeada 100755
+--- a/target/linux/ath79/base-files/etc/board.d/02_network
++++ b/target/linux/ath79/base-files/etc/board.d/02_network
+@@ -161,6 +161,10 @@ ath79_setup_interfaces()
+ 		ucidef_add_switch "switch0" \
+ 			"0@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "5:lan:4" "1:wan"
+ 		;;
++	tplink,cpe510-v1)
++		ucidef_add_switch "switch0" \
++			"0@eth0" "1:lan" "4:wan"
++		;;
+ 	tplink,tl-wr1043nd-v1)
+ 		ucidef_add_switch "switch0" \
+ 			"1:lan" "2:lan" "3:lan" "4:lan" "0:wan" "5@eth0"
+diff --git a/target/linux/ath79/base-files/etc/board.d/03_gpio_switches b/target/linux/ath79/base-files/etc/board.d/03_gpio_switches
+index 4f08fab5250..a422e1ef706 100755
+--- a/target/linux/ath79/base-files/etc/board.d/03_gpio_switches
++++ b/target/linux/ath79/base-files/etc/board.d/03_gpio_switches
+@@ -14,6 +14,9 @@ dlink,dir-825-c1|\
+ dlink,dir-835-a1)
+ 	ucidef_add_gpio_switch "wan_led_auto" "WAN LED Auto" "20" "0"
+ 	;;
++tplink,cpe510-v1)
++	ucidef_add_gpio_switch "poe_passthrough" "PoE Passthrough" "20"
++	;;
+ ubnt,nanostation-ac)
+ 	ucidef_add_gpio_switch "poe_passthrough" "PoE Passthrough" "3"
+ 	;;
+diff --git a/target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts b/target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts
+new file mode 100644
+index 00000000000..32893d3c901
+--- /dev/null
++++ b/target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts
+@@ -0,0 +1,183 @@
++// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
++/dts-v1/;
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
++
++#include "ar9344.dtsi"
++
++/ {
++	model = "TP-Link CPE510 v1";
++	compatible = "tplink,cpe510-v1", "qca,ar9344";
++
++	aliases {
++		led-boot = &system;
++		led-failsafe = &system;
++		led-running = &system;
++		led-upgrade = &system;
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		lan0 {
++			label = "tp-link:green:lan0";
++			gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
++		};
++
++		lan1 {
++			label = "tp-link:green:lan1";
++			gpios = <&gpio 12 GPIO_ACTIVE_LOW>;
++		};
++
++		link1 {
++			label = "tp-link:green:link1";
++			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
++		};
++
++		link2 {
++			label = "tp-link:green:link2";
++			gpios = <&gpio 14 GPIO_ACTIVE_LOW>;
++		};
++
++		link3 {
++			label = "tp-link:green:link3";
++			gpios = <&gpio 15 GPIO_ACTIVE_LOW>;
++		};
++
++		system: link4 {
++			label = "tp-link:green:link4";
++			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
++		};
++	};
++
++	keys {
++		compatible = "gpio-keys-polled";
++		poll-interval = <20>;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&jtag_disable_pins>;
++
++		reset {
++			linux,code = <KEY_RESTART>;
++			gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
++			debounce-interval = <60>;
++		};
++	};
++
++	gpio-export {
++		compatible = "gpio-export";
++
++		gpio_ext_lna0 {
++			gpio-export,name = "tp-link:ext:lna0";
++			gpio-export,output = <1>;
++			gpios = <&gpio 18 GPIO_ACTIVE_HIGH>;
++		};
++
++		gpio_ext_lna1 {
++			gpio-export,name = "tp-link:ext:lna1";
++			gpio-export,output = <1>;
++			gpios = <&gpio 19 GPIO_ACTIVE_HIGH>;
++		};
++	};
++};
++
++&ref {
++	clock-frequency = <40000000>;
++};
++
++&uart {
++	status = "okay";
++};
++
++&gpio {
++	status = "okay";
++};
++
++&spi {
++	num-cs = <1>;
++
++	status = "okay";
++
++	flash@0 {
++		compatible = "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <25000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			uboot: partition@0 {
++				label = "u-boot";
++				reg = <0x000000 0x020000>;
++				read-only;
++			};
++
++			partition@20000 {
++				label = "partition-table";
++				reg = <0x020000 0x010000>;
++				read-only;
++			};
++
++			productinfo: partition@30000 {
++				label = "product-info";
++				reg = <0x030000 0x010000>;
++				read-only;
++			};
++
++			partition@40000 {
++				label = "firmware";
++				reg = <0x040000 0x780000>;
++
++				compatible = "fixed-partitions";
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				partition@0 {
++					label = "kernel";
++					reg = <0x000000 0x1c0000>;
++				};
++
++				partition@1c0000 {
++					label = "rootfs";
++					reg = <0x1c0000 0x5c0000>;
++				};
++			};
++
++			partition@7c0000 {
++				label = "config";
++				reg = <0x7c0000 0x030000>;
++				read-only;
++			};
++
++			art: partition@7f0000 {
++				label = "art";
++				reg = <0x7f0000 0x010000>;
++				read-only;
++			};
++		};
++	};
++};
++
++&wmac {
++	status = "okay";
++
++	mtd-cal-data = <&art 0x1000>;
++	mtd-mac-address = <&productinfo 0x08>;
++/*	mtd-mac-address-increment = <0>;*/
++};
++
++&eth1 {
++	status = "okay";
++
++/*	phy-handle = <&swphy0>;*/
++	mtd-mac-address = <&productinfo 0x08>;
++	phy-mode = "gmii";
++
++	gmac-config {
++		device = <&gmac>;
++		switch-phy-swap = <1>;
++	};
++};
+diff --git a/target/linux/ath79/image/generic-tp-link.mk b/target/linux/ath79/image/generic-tp-link.mk
+index be755c7ec08..3d6417f2553 100644
+--- a/target/linux/ath79/image/generic-tp-link.mk
++++ b/target/linux/ath79/image/generic-tp-link.mk
+@@ -94,6 +94,22 @@ define Device/tplink_re450-v2
+ endef
+ TARGET_DEVICES += tplink_re450-v2
+ 
++define Device/tplink_cpe510-v1
++  $(Device/tplink-safeloader)
++  ATH_SOC := ar9344
++  IMAGE_SIZE := 7680k
++  DEVICE_TITLE := TP-Link CPE510 v1
++  DEVICE_PACKAGES := rssileds
++  TPLINK_BOARD_ID := CPE510
++  LOADER_TYPE := elf
++  LOADER_FLASH_OFFS := 0x43000
++  COMPILE := loader-$(1).elf
++  COMPILE/loader-$(1).elf := loader-okli-compile
++  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49 | loader-okli $(1) 12288
++  SUPPORTED_DEVICES += cpe510-v1
++endef
++TARGET_DEVICES += tplink_cpe510-v1
++
+ define Device/tplink_tl-wdr3600
+   $(Device/tplink-8mlzma)
+   ATH_SOC := ar9344
+
+From d678236fc8e0c8e5cc7778110415ada3eb1bdc30 Mon Sep 17 00:00:00 2001
+From: Paul Wassi <p.wassi@gmx.at>
+Date: Wed, 2 Jan 2019 10:00:14 +0100
+Subject: [PATCH 2/2] ath79: TL-CPE510-v1 with eth0 and eth1
+
+LAN1 is not working properly!
+
+To be squashed with previous commit.
+---
+ .../ath79/base-files/etc/board.d/01_leds      |  4 +--
+ .../ath79/base-files/etc/board.d/02_network   |  4 ---
+ .../ath79/dts/ar9344_tplink_cpe510-v1.dts     | 25 ++++++++++++++++---
+ 3 files changed, 23 insertions(+), 10 deletions(-)
+
+diff --git a/target/linux/ath79/base-files/etc/board.d/01_leds b/target/linux/ath79/base-files/etc/board.d/01_leds
+index e4c663ebd85..b8eb4d31671 100755
+--- a/target/linux/ath79/base-files/etc/board.d/01_leds
++++ b/target/linux/ath79/base-files/etc/board.d/01_leds
+@@ -96,8 +96,8 @@ tplink,cpe510-v1)
+ 	ucidef_set_led_rssi "rssimediumlow" "RSSIMEDIUMLOW" "tp-link:green:link2" "wlan0" "26" "100" "-25" "13"
+ 	ucidef_set_led_rssi "rssimediumhigh" "RSSIMEDIUMHIGH" "tp-link:green:link3" "wlan0" "51" "100" "-50" "13"
+ 	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "tp-link:green:link4" "wlan0" "76" "100" "-75" "13"
+-	ucidef_set_led_switch "lan0" "LAN0" "tp-link:green:lan0" "switch0" "0x02"
+-	ucidef_set_led_switch "lan1" "LAN1" "tp-link:green:lan1" "switch0" "0x10"
++	ucidef_set_led_netdev "lan0" "LAN0" "tp-link:green:lan0" "eth0"
++	ucidef_set_led_netdev "lan1" "LAN1" "tp-link:green:lan1" "eth1"
+ 	;;
+ tplink,re450-v2)
+ 	ucidef_set_led_netdev "lan_data" "LAN Data" "tp-link:green:lan_data" "eth0" "tx rx"
+diff --git a/target/linux/ath79/base-files/etc/board.d/02_network b/target/linux/ath79/base-files/etc/board.d/02_network
+index a467e9eeada..e24c58e208f 100755
+--- a/target/linux/ath79/base-files/etc/board.d/02_network
++++ b/target/linux/ath79/base-files/etc/board.d/02_network
+@@ -161,10 +161,6 @@ ath79_setup_interfaces()
+ 		ucidef_add_switch "switch0" \
+ 			"0@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "5:lan:4" "1:wan"
+ 		;;
+-	tplink,cpe510-v1)
+-		ucidef_add_switch "switch0" \
+-			"0@eth0" "1:lan" "4:wan"
+-		;;
+ 	tplink,tl-wr1043nd-v1)
+ 		ucidef_add_switch "switch0" \
+ 			"1:lan" "2:lan" "3:lan" "4:lan" "0:wan" "5@eth0"
+diff --git a/target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts b/target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts
+index 32893d3c901..0e0a38cfed3 100644
+--- a/target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts
++++ b/target/linux/ath79/dts/ar9344_tplink_cpe510-v1.dts
+@@ -166,18 +166,35 @@
+ 
+ 	mtd-cal-data = <&art 0x1000>;
+ 	mtd-mac-address = <&productinfo 0x08>;
+-/*	mtd-mac-address-increment = <0>;*/
++};
++
++&eth0 {
++	status = "okay";
++
++	mtd-mac-address = <&productinfo 0x08>;
++
++	phy-mode = "mii";
++	phy-handle = <&swphy4>;
++};
++
++&builtin_switch {
++	mdio-bus {
++		swphy3: ethernet-phy@3 {
++			reg = <3>;
++			phy-mode = "mii";
++		};
++	};
+ };
+ 
+ &eth1 {
+ 	status = "okay";
+ 
+-/*	phy-handle = <&swphy0>;*/
++	phy-handle = <&swphy3>;
+ 	mtd-mac-address = <&productinfo 0x08>;
+-	phy-mode = "gmii";
+ 
+ 	gmac-config {
+ 		device = <&gmac>;
+-		switch-phy-swap = <1>;
+ 	};
++
++	/delete-node/ fixed-link;
+ };

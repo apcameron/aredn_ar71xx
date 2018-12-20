@@ -1,12 +1,13 @@
 #!/bin/sh
-#CMLARA:  Temporary shell script for ar71xx platform models
-#Eventually we will want to to clean this up to a diffrent method
-# so that we can combine linksys and other devices into the same
-# script.  For now we just rely on the OS to help us
 
+CFG=/etc/board.json
+id=""
 
-. /lib/ar71xx.sh
+. /usr/share/libubox/jshn.sh
 
-boardtype=$(ar71xx_board_name)
-
-echo "$boardtype"
+[ -f $CFG ] || exit 1
+json_init
+json_load "$(cat ${CFG})"
+json_select model
+json_get_vars id
+echo "$id"

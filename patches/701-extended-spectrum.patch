@@ -1,7 +1,7 @@
-Index: openwrt/package/kernel/mac80211/patches/301-extended-spectrum.patch
+Index: openwrt/package/kernel/mac80211/patches/ath/301-extended-spectrum.patch
 ===================================================================
 --- /dev/null
-+++ openwrt/package/kernel/mac80211/patches/301-extended-spectrum.patch
++++ openwrt/package/kernel/mac80211/patches/ath/301-extended-spectrum.patch
 @@ -0,0 +1,169 @@
 +--- a/drivers/net/wireless/ath/ath9k/common-init.c
 ++++ b/drivers/net/wireless/ath/ath9k/common-init.c

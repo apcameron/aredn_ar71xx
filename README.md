@@ -58,48 +58,17 @@ for a list of outstanding defects.
 
 Device | Image to Use | RAM | Stability
 ------ | ------------ | --- | ---------
-AirGrid XM | bullet-m | 32Mb | stable
-AirGrid XW | loco-m-xw | 32Mb | stable
-AirRouter  | airrouter | 32Mb | stable
-AirRouter HP | airrouter | 32Mb | stable
-Bullet M2/M2Ti/M5/M5Ti | bullet-m | 32Mb | stable
-Bullet Ti | bullet-m | 32Mb | stable
-Bullet M2 XW | rocket-m-xw | 64Mb | stable
-LiteBeam M5 | lbe-m5 | 64Mb | stable
-NanoBeam M2-13/M5-16/M5-19 | loco-m-xw | 32Mb | stable
-NanoBridge 2G18 | bullet-m | 32Mb | stable
-NanoBridge 5G22/25 | bullet-m | 32Mb | stable
-NanoBridge M9 | bullet-m | 32Mb | stable
-NanoStation Loco M2/M5/M9 XM | bullet-m | 32Mb | stable
-NanoStation Loco M2 XW | loco-m-xw | 64Mb | stable
-NanoStation Loco M5 XW with test date before ~Nov 2017| loco-m-xw | 64Mb | stable
-NanoStation Loco M5 XW with test date on or after ~Nov 2017 | rocket-m-xw | 64Mb | stable
-NanoStation  M2/M3/M5 XM | nano-m | 32Mb | stable
-NanoStation  M2/M5 XW | nano-m-xw | 64Mb | stable
-PicoStation M2 | bullet-m | 32Mb | stable
-PowerBeam-M2-400 | loco-m-xw | 64Mb | stable
-PowerBeam-M5-300 | loco-m-xw | 64Mb | stable
-PowerBeam-M5-400/400ISO/620 | rocket-m-xw | 64Mb | stable
-PowerBridge | nano-m  | 64Mb | stable
-Rocket M9/M2/M3/M5/M5GPS XM | rocket-m | 64Mb | stable
-Rocket M2/M5 XW | rocket-m-xw | 64Mb | stable
-Rocket M2 TI | rocket-m-ti? | 64Mb | unknown
-Rocket M5 TI | rocket-m-ti | 64Mb | stable
-TPLink CPE210 v1.0/v1.1 | cpe210-220-v1 | 64Mb | stable
-TPLink CPE210 v2.0 | cpe210-v2 | 64Mb | stable
-TPLink CPE210 v3.0 | cpe210-v3 | 64Mb | stable
-TPLink CPE220 v2.0 | cpe220-v2 | 64Mb | stable
-TPLink CPE220 v3.0 | cpe220-v3 | 64Mb | stable
-TPLink CPE510 v1.0/v1.1 | cpe510-520-v1 | 64Mb | stable
+AirRouter  | airrouter | 32Mb | unknown
+Bullet M2/M2Ti/M5/M5Ti | bullet-m | 32Mb | unknown
+Bullet Ti | bullet-m | 32Mb | unknown
+Bullet M2 XW | rocket-m-xw | 64Mb | unknown
+NanoBridge 2G18 | bullet-m | 32Mb | unknown
+NanoBridge 5G22/25 | bullet-m | 32Mb | unknown
+NanoBridge M9 | bullet-m | 32Mb | unknown
+NanoStation M2 | nano-m | 32Mb | stable
+NanoStation Loco M2/M5/M9 XM | bullet-m | 32Mb | unknown
+Rocket M9/M2/M3/M5/M5GPS XM | rocket-m | 64Mb | unknown
 TPLink CPE510 v2.0 | cpe510-v2 | 64Mb | stable
-TPLink CPE510 v3.0 | cpe510-v3 | 64Mb | stable
-TPLink CPE610 v1.0 | cpe610-v1 | 64Mb | stable
-Mikrotik Basebox RB912UAG-5HPnD/2HPnD | mikrotik-nand-large | 64Mb | stable
-Mikrotik hAP ac lite 952Ui-5ac2nD | mikrotik-rb-nor-flash-16M-ac | 64Mb | stable
-Mikrotik RBLHG-5nD | mikrotik-rb-nor-flash-16M | 64Mb | stable
-Mikrotik RBLHG-5HPnD-XL | mikrotik-rb-nor-flash-16M | 64Mb | stable
-Mikrotik LDF-5nD | mikrotik-rb-nor-flash-16M | 64Mb | stable
-Mikrotik QRT5 RB911G-5HPnD-QRT | mikrotik-nand-large | 64Mb | stable
 
 Latest Mikrotik installation options are found at: https://www.arednmesh.org/content/installation-instructions-mikrotik-devices
 
@@ -127,6 +96,9 @@ other mesh nodes.
 
 * NanoStation M5 XW
 * NanoStation M2 XW
+
+The following devices have standard Main ports and non-functional Secondary Ports
+
 * NanoStation M2 XM
 * NanoStation M3 XM
 * NanoStation M5 XM
