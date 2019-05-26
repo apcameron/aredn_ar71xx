@@ -1,6 +1,6 @@
 001-Add-support-CPE510v1.0.patch
-001-Add-support-CPE510v2.0.patch
-002-firmware-check-fix.patch
+#001-Add-support-CPE510v2.0.patch
+#002-firmware-check-fix.patch
 003-add-winbond-w25q128jv.patch
 #004-add-lhg-5hpnd-xl.patch
 #004-add-ldf-5nd.patch
@@ -14,3 +14,4 @@
 709-iperf-fw-restart.patch
 710-no-ping6-traceroute6.patch
 711-nano-xw-switch-config.patch
+712-vtun-openssl-fix.patch
