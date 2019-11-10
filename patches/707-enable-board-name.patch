@@ -1,8 +1,6 @@
-Index: openwrt/target/linux/ar71xx/base-files/lib/ar71xx.sh
-===================================================================
---- openwrt.orig/target/linux/ar71xx/base-files/lib/ar71xx.sh
-+++ openwrt/target/linux/ar71xx/base-files/lib/ar71xx.sh
-@@ -1563,3 +1563,11 @@ ar71xx_board_detect() {
+--- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
++++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
+@@ -1648,3 +1648,11 @@ ar71xx_board_detect() {
  	echo "$AR71XX_BOARD_NAME" > /tmp/sysinfo/board_name
  	echo "$AR71XX_MODEL" > /tmp/sysinfo/model
  }
